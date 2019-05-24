@@ -10,6 +10,12 @@ import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 import github.chorman0773.pokemonsms.net.connection.MulticastConnection;
 
+/**
+ * NetHandlerMulticast is an implementation of INetHandlerRemote which,
+ *  rather than opening a single-pipeline to another remote, joins a multicast group on a particular port.<br/>
+ * This implementation is designed for specialized use of the PkmCom APL, when PkmCom/Multicast UDP is desired.
+ * @author chorm
+ */
 public class NetHandlerMulticast implements INetHandlerRemote {
 	private MulticastConnection conn;
 	public NetHandlerMulticast(InetAddress group,int port) throws IOException {
