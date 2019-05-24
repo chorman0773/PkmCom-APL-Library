@@ -5,6 +5,9 @@ import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.NetworkSide;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 
+/**
+* The Client End of a {@link INetHandlerPipe}
+*/
 public class NetHandlerClientPipe extends NetHandlerPipe implements INetHandlerRemote {
 	private NetHandlerServerPipe server;
 	public NetHandlerClientPipe(NetHandlerServerPipe server) {
