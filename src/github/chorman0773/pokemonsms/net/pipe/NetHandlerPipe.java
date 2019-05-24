@@ -8,6 +8,9 @@ import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.NetworkSide;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 
+/**
+* The Default implementation of {@link INetHandlerPipe}.
+*/
 public abstract class NetHandlerPipe implements INetHandlerPipe {
 	
 	private Deque<IPacket> enqueued = new LinkedList<>();
