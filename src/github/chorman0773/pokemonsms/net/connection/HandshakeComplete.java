@@ -1,4 +1,4 @@
-package github.chorman0773.pokemonsms.net;
+package github.chorman0773.pokemonsms.net.connection;
 
 import java.io.IOException;
 
