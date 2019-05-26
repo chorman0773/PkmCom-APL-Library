@@ -27,7 +27,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 
-import github.chorman0773.pokemonsms.net.HandshakeComplete;
+import github.chorman0773.pokemonsms.net.connection.HandshakeComplete;
 import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.ProtocolError;
