@@ -90,12 +90,6 @@ public class NetControllerServer implements INetController {
 		return new ArrayList<>(connections);
 	}
 
-	@Override
-	public ServerSocket getServer() {
-		// TODO Auto-generated method stub
-		return sock;
-	}
-
 	public void closeConnection(NetHandlerServer netHandlerServer) throws ProtocolError {
 		synchronized(lock) {
 			connections.remove(netHandlerServer);

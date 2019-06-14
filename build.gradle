@@ -1,0 +1,6 @@
+
+group = 'github.chorman0773.pokemonsms'
+archivesBaseName = 'pkmcom-apl-library'
+version = '1.0'
+
+targetCompatibility = sourceCompatibility = 11
