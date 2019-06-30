@@ -74,6 +74,7 @@ public class NetControllerServer implements INetController {
 		}
 		for(INetHandlerServer conn:connections)
 			conn.close();
+		
 
 		sock.close();
 	}
