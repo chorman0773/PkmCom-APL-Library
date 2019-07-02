@@ -2,7 +2,7 @@
 
 This Document Describes the addition information necessary to implement PkmCom/TCP, including the connection handshake.
 
-## Connection Handshaking [pkmcom.handshake] ##
+## Connection Handshaking [pkmcom.handshake]
 
 
 The PkmCom/TCP protocol is built on TCP. When the connection is opened, and after the TCP Handshake, The Server and Client preform a Secret Key exchange to send data over a channel secured by AES-256, using Cipher Block Chaining, and Padded with PKCS5 Padding.<br/>
@@ -18,13 +18,11 @@ The steps of the key exchange are preformed as follows:
 
 
 
-This Packet is sent and verified at the end of the handshake sequence. It contains a single Unsigned Int Enum Field, which should be exactly 0x504B4D00. The Id of the Packet is 0xFF.
+This Packet is sent and verified at the end of the handshake sequence. It contains a single Unsigned Int Enum Field, which MUST be exactly 0x504B4D00. The Id of the Packet is 0xFF.
 
 ### Alternative Handshaking [pkmcom.handshake.alt]
 
 In certain situations, an alternative method is used to derive the Session Shared Secret, such as a password. 
 After the messages are exchanged, if indicated by the server, the client and server should append some sort of alternatively exchanged secret to the combined messages (usually a password exchanged physically, such as in person). The AES Key should then be derived from that, and handshaking should be completed from that point. 
-
-This is primarily used in LAN (indicated by the 0x80 bit set in the LAN Game type bitfield), but Servers can use this by requesting the secret be re-established with the reason code being set to 1 (password required), and as such, implement non-exclusive whitelists (whitelists that are not associated with one save file, or one sentry account, but are protected by a password). 
 
 It is implementation-defined if a client supports alternative handshaking. 
