@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import github.chorman0773.pokemonsms.net.NetworkSide;
+import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.INetHandlerRemote;
 import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.ProtocolError;
@@ -18,8 +19,8 @@ import github.chorman0773.pokemonsms.net.connection.MulticastConnection;
  */
 public class NetHandlerMulticast implements INetHandlerRemote {
 	private MulticastConnection conn;
-	public NetHandlerMulticast(InetAddress group,int port) throws IOException {
-		conn = new MulticastConnection(group,port);
+	public NetHandlerMulticast(PacketDecoder dec,InetAddress group,int port) throws IOException {
+		conn = new MulticastConnection(dec,group,port);
 	}
 
 	@Override

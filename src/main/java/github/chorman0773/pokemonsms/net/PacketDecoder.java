@@ -4,20 +4,24 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 
 public class PacketDecoder {
 	
-	private static final List<Supplier<? extends IPacket>> packProviders = new ArrayList<>();
+	private final Map<Integer,Supplier<? extends IPacket>> packetProviders = new HashMap<>();
 	
-	public static void registerProvider(Supplier<? extends IPacket> provider) {
-		packProviders.add(provider);
+	public PacketDecoder registerProvider(int id,Supplier<? extends IPacket> provider) {
+		if(packetProviders.putIfAbsent(id,provider)!=null)
+			throw new IllegalArgumentException("Provider for packet "+Integer.toHexString(id)+" already found");
+		return this;
 	}
 	
 	public PacketDecoder() {
-		
+		registerProvider(255,HandshakeComplete::new);
 	}
 	public IPacket read(DataInputStream strm) throws IOException {
 		int id= strm.readUnsignedByte();
@@ -26,18 +30,10 @@ public class PacketDecoder {
 		byte[] b = new byte[size];
 		strm.readFully(b);
 		PacketBuffer buff = new PacketBuffer(b);
-		if(id==255) {
-			HandshakeComplete ret = new HandshakeComplete();
-			ret.read(buff);
-			if(ret.size()!=size)
-				throw new ProtocolError("Packet Size Mismatch ("+ret.size()+"!="+size+")");
-			else if((ret.hashcode()*31+ret.getId())!=hashcode)
-				throw new ProtocolError("Packet Hash Mismatch ("+ret.hashCode()+"!="+hashcode+")");
-			return ret;
-		}else if(id>=packProviders.size()) {
+		if(id>=packetProviders.size()) {
 			throw new ProtocolError("Invalid Packet Id "+Integer.toHexString(id));
 		}else {
-			IPacket ret = packProviders.get(id).get();
+			IPacket ret = packetProviders.get(id).get();
 			ret.read(buff);
 			if(ret.size()!=size)
 				throw new ProtocolError("Packet Size Mismatch ("+ret.size()+"!="+size+")");

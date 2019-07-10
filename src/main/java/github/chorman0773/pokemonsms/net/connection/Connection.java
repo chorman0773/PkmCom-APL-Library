@@ -41,7 +41,7 @@ public class Connection implements AutoCloseable {
 	private Socket sock;
 	private DataOutputStream out;
 	private DataInputStream in;
-	private PacketDecoder dec = new PacketDecoder();
+	private PacketDecoder dec;
 	static byte[] combine(byte[] a,byte[] b) {
 		byte[] ret = new byte[Math.max(a.length, b.length)];
 		for(int i=0;i<ret.length;i++)
@@ -69,12 +69,13 @@ public class Connection implements AutoCloseable {
 		}
 		
 	}
-	public Connection(Socket sock,KeyPair keys) {
+	public Connection(PacketDecoder dec,Socket sock,KeyPair keys) {
 		this.sock = sock;
 		this.spub = keys.getPublic();
 		this.spriv = keys.getPrivate();
+		this.dec = dec;
 	}
-	public void handshake() throws IOException {
+	public synchronized void handshake() throws IOException {
 		InputStream in = sock.getInputStream();
 		OutputStream out = sock.getOutputStream();
 		this.out = new DataOutputStream(out);
@@ -134,10 +135,10 @@ public class Connection implements AutoCloseable {
 			throw new IOException(e);
 		}
 	}
-	public IPacket get()throws IOException {
+	public synchronized IPacket get()throws IOException {
 		return dec.read(in);
 	}
-	public void send(IPacket packet)throws IOException{
+	public synchronized void send(IPacket packet)throws IOException{
 		dec.write(this.out, packet);
 	}
 	public Socket getSocket() {

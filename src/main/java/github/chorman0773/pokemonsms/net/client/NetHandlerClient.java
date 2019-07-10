@@ -6,6 +6,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 
 import github.chorman0773.pokemonsms.net.NetworkSide;
+import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.INetHandlerRemote;
 import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.ProtocolError;
@@ -26,8 +27,8 @@ public class NetHandlerClient implements INetHandlerRemote {
 		}
 	}
 	
-	public NetHandlerClient(Socket sock) {
-		conn = new Connection(sock,generator.genKeyPair());
+	public NetHandlerClient(PacketDecoder dec, Socket sock) {
+		conn = new Connection(dec,sock,generator.genKeyPair());
 	}
 
 	@Override

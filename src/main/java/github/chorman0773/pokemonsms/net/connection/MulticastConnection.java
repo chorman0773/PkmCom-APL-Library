@@ -18,16 +18,16 @@ import github.chorman0773.pokemonsms.net.ProtocolError;
 public class MulticastConnection implements Closeable {
 	private MulticastSocket sock;
 	private PacketDecoder dec;
-	public MulticastConnection(InetAddress multicastGroup,int port) throws IOException {
+	public MulticastConnection(PacketDecoder dec,InetAddress multicastGroup,int port) throws IOException {
 		sock = new MulticastSocket(port);
 		sock.setTimeToLive(255);
 		sock.setLoopbackMode(true);
 		sock.joinGroup(multicastGroup);
-		dec = new PacketDecoder();
+		this.dec = dec;
 	}
 	
 	
-	public byte[] pull() throws IOException{
+	private byte[] pull() throws IOException{
 		ByteBuffer buff = ByteBuffer.allocate(16777215);
 		DatagramPacket pack = new DatagramPacket(buff.array(),16777215);
 		sock.receive(pack);
@@ -37,12 +37,12 @@ public class MulticastConnection implements Closeable {
 		return ret;
 	}
 	
-	public void push(byte[] buff) throws IOException {
+	private void push(byte[] buff) throws IOException {
 		DatagramPacket pack = new DatagramPacket(buff,buff.length);
 		sock.send(pack);
 	}
 
-	public IPacket recieve() throws ProtocolError {
+	public synchronized IPacket recieve() throws ProtocolError {
 		try(DataInputStream strm = new DataInputStream(new ByteArrayInputStream(pull()))){
 			return dec.read(strm);
 		} catch(ProtocolError err) {
@@ -52,7 +52,7 @@ public class MulticastConnection implements Closeable {
 		} 
 	}
 
-	public void send(IPacket packet) throws ProtocolError {
+	public synchronized void send(IPacket packet) throws ProtocolError {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		try(DataOutputStream strm = new DataOutputStream(bout)){
 			dec.write(strm, packet);

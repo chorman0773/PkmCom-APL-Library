@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.security.KeyPair;
 
 import github.chorman0773.pokemonsms.net.NetworkSide;
+import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.INetController;
 import github.chorman0773.pokemonsms.net.INetHandlerRemote;
 import github.chorman0773.pokemonsms.net.IPacket;
@@ -14,8 +15,8 @@ import github.chorman0773.pokemonsms.net.connection.Connection;
 public class NetHandlerServer implements INetHandlerServer {
 	private Connection conn;
 	private NetControllerServer controller;
-	public NetHandlerServer(Socket sock,KeyPair keys,NetControllerServer controller) throws IOException {
-		conn = new Connection(sock,keys);
+	public NetHandlerServer(PacketDecoder dec,Socket sock,KeyPair keys,NetControllerServer controller) throws IOException {
+		conn = new Connection(dec,sock,keys);
 		this.controller = controller;
 		try {
 			conn.handshake();

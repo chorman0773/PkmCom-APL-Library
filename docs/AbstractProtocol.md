@@ -37,6 +37,7 @@ All Multibyte Data types are read and written in Big-Endian (network) Byte order
 
 
 The PkmCom APL defines 21 Types by default. The types are as Such:
+
 <table>
 	<tr>
 		<th>Type name</th>
@@ -47,14 +48,14 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 	<tr>
 		<td>Byte</td>
 		<td>1</td>
-		<td>An Unsigned 1-byte Integer in [0,256)
+		<td>An Unsigned 1-byte Integer in [0,256)</td>
   		<td></td>
   	</tr>
   	<tr>
   		<td>Signed byte</td>
   		<td>1</td>
   		<td>A signed (2s Compliment) 1-byte integer in [-128,128)</td>
-  		<td></td>
+  		<td>A Signed byte and a Byte with equal value have the same bit representation iff it falls in the range [0,128)</td>
   	</tr>
   	<tr>
   		<td>Short</td>
@@ -66,7 +67,7 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 		<td>Unsigned Short</td>
 		<td>2</td>
 		<td>An Unsigned 2-byte Integer in [0,65536)</td>
-		<td></td>
+		<td>An Unsigned Short an a Short with equal value have the same representation iff it falls in the range [0,65536)</td>
 	</tr>
 	<tr>
 		<td>Int</td>
@@ -78,7 +79,7 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 		<td>Unsigned Int</td>
 		<td>4</td>
 		<td>An Unsigned 4-byte Integer in [0,4294967296)</td>
-		<td>The Base Implementation only uses Unsigned Int Bitflags, and as the Hashcode field of Packet</td>
+		<td>The Base Implementation only uses Unsigned Int Bitflags, and as the Hashcode field of Packet. An Unsigned Int has the Same Representation as an Equal Int iff it falls in the range [0,2147483648)</td>
 	</tr>
 	<tr>
 		<td>Long</td>
@@ -102,7 +103,7 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 		<td>T Array</td>
 		<td>n*sizeof T</td>
 		<td>Stores n values of T. n is the length of the array, which is implied by the context</td>
-		<td>Static Length Arrays are primarily used to abrieviate otherwise long packet defintions. Dynamic Length Arrays may have the Length given by annother field. Otherwise, the length prefix has to be stored separately. A T Array with a non-zero size should be considered to hold the same preconditions as its element</td>
+		<td>Static Length Arrays are primarily used to abrieviate otherwise long packet defintions. Dynamic Length Arrays may have the Length given by annother field. Otherwise, the length prefix has to be stored separately. A T Array with a non-zero size should be considered to hold the same preconditions as its element. A T Array with a length of 0 has no preconditions, and is treated as though it doesn't exist</td>
 	</tr>
 	<tr>
 		<td>String</td>
@@ -144,13 +145,13 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 		<td>Boolean</td>
 		<td>1</td>
 		<td>Stores a single Boolean value as if by a Byte Enum, given that 0 is false, and 1 is true.</td>
-		<td></td>
+		<td>Boolean shall be internally treated as though it were a Byte Enum as above</td>
 	</tr>
 	<tr>
 		<td>Version</td>
 		<td>2</td>
 		<td>Stores a Version as if by (major-1)<<8|minor. (1 byte per component)</td>
-		<td>The Format the Version is stored as is the Sentry Version Encoding</td>
+		<td>The Format the Version is stored as is the LCLib Version Encoding</td>
 	</tr>
 	<tr>
 		<td>UUID</td>
@@ -172,13 +173,38 @@ The PkmCom APL defines 21 Types by default. The types are as Such:
 	</tr>
 </table>
 
+Note that Neither Instant nor Duration are considered Structure types(`[pkmcom.types.struct]`), though may be handled as though they were both Structure Types with the following structure:
+
+<table>
+	<tr>
+		<th>Field</th>
+		<th>Type</th>
+	</tr>
+	<tr>
+		<td>Seconds</td>
+		<td>Long</td>
+	</tr>
+	<tr>
+		<td>Nanos</td>
+		<td>Unsigned Int</td>
+	</tr>
+</table>
+
+With the hashcode and rules defined in `[pkmcom.hash.def]` and `[pkmcom.rules]`. 
+
+Further note that `Nanos` may be treated internally as Signed, as there is no distinction between an equal Int and Unsigned Int which has the same bit representation, and all valid values for `Nanos` are representable as both an Int and Unsigned Int with the same bit representation.
+	
+
 ### Structure Types [pkmcom.types.struct]
 
-PkmCom also specifies Structure Types, (though none such types are defined in The PkmCom APL). 
+PkmCom also specifies Structure Types. 
+
 Structure Types are defined to contain fields of any other type defined in PkmCom
 
 The Structure type defines its own size, hashcode algorithm, content, and rules. 
-Structure types can contain other Structure types<br/><br/>
+Structure types can contain other Structure types
+
+
 Any example of a Structure type is as follows:
 <table>
 	<tr>
