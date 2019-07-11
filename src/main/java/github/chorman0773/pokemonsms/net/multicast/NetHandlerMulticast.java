@@ -52,4 +52,15 @@ public class NetHandlerMulticast implements INetHandlerRemote {
 		return NetworkSide.CLIENT;
 	}
 
+	@Override
+	public void handleProtocolError(ProtocolError e) throws ProtocolError {
+		try {
+			conn.close();
+		} catch(ProtocolError e1) {
+			throw e1;
+		}catch (IOException e1) {
+			throw new ProtocolError(e1);
+		}
+	}
+
 }

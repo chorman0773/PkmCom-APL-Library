@@ -11,4 +11,5 @@ public interface INetHandlerRemote extends INetHandler {
 	public NetworkSide getRemote();
 	public IPacket recieve()throws ProtocolError;
 	public void send(IPacket packet)throws ProtocolError;
+	public void handleProtocolError(ProtocolError e)throws ProtocolError;
 }

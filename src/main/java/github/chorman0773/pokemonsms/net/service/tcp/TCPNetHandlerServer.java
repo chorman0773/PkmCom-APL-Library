@@ -23,7 +23,7 @@ public class TCPNetHandlerServer implements INetHandlerServer {
 			close();
 		}
 	}
-	private void handleProtocolError(ProtocolError perr) throws ProtocolError {
+	public void handleProtocolError(ProtocolError perr) throws ProtocolError {
 		//TODO send error message to client
 		close();
 	}

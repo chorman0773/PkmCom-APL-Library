@@ -32,5 +32,16 @@ public class NetHandlerClientPipe extends NetHandlerPipe implements INetHandlerR
 		return NetworkSide.SERVER;
 	}
 
+	@Override
+	public void send(IPacket packet) throws ProtocolError {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleProtocolError(ProtocolError e) throws ProtocolError {
+		
+	}
+
 
 }

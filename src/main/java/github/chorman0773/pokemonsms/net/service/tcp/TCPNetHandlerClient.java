@@ -38,8 +38,15 @@ public class TCPNetHandlerClient implements INetHandlerRemote {
 	}
 
 	@Override
-	public void close() throws IOException {
-		conn.close();
+	public void close() throws ProtocolError {
+		try {
+			conn.close();
+		}catch(ProtocolError e) {
+			throw e;
+		}
+		catch(IOException e) {
+			throw new ProtocolError(e);
+		}
 	}
 
 	@Override
@@ -67,6 +74,11 @@ public class TCPNetHandlerClient implements INetHandlerRemote {
 		} catch (IOException e) {
 			throw new ProtocolError(e);
 		}
+	}
+	
+	public void handleProtocolError(ProtocolError perr) throws ProtocolError {
+		//TODO send error message to client
+		close();
 	}
 
 }

@@ -121,5 +121,12 @@ public class NetHandlerWSSClient implements INetHandlerRemote {
 		}
 		
 	}
+	
+	private static int PROTOCOL_ERROR_CODE = 1002;
+	
+	@Override
+	public void handleProtocolError(ProtocolError e) throws ProtocolError {
+		sock.close(PROTOCOL_ERROR_CODE, e.getMessage());
+	}
 
 }
