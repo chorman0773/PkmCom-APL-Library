@@ -1,27 +1,26 @@
-package github.chorman0773.pokemonsms.net.server;
+package github.chorman0773.pokemonsms.net.service.tcp;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.security.KeyPair;
 
-import github.chorman0773.pokemonsms.net.NetworkSide;
 import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.INetController;
-import github.chorman0773.pokemonsms.net.INetHandlerRemote;
 import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 import github.chorman0773.pokemonsms.net.connection.Connection;
+import github.chorman0773.pokemonsms.net.server.INetHandlerServer;
 
-public class NetHandlerServer implements INetHandlerServer {
+public class TCPNetHandlerServer implements INetHandlerServer {
 	private Connection conn;
-	private NetControllerServer controller;
-	public NetHandlerServer(PacketDecoder dec,Socket sock,KeyPair keys,NetControllerServer controller) throws IOException {
+	private TCPNetControllerServer controller;
+	public TCPNetHandlerServer(PacketDecoder dec,Socket sock,KeyPair keys,TCPNetControllerServer controller) throws IOException {
 		conn = new Connection(dec,sock,keys);
 		this.controller = controller;
 		try {
 			conn.handshake();
 		}catch(IOException e) {
-			conn.close();
+			close();
 		}
 	}
 	private void handleProtocolError(ProtocolError perr) throws ProtocolError {

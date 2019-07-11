@@ -1,4 +1,4 @@
-package github.chorman0773.pokemonsms.net.service;
+package github.chorman0773.pokemonsms.net.service.tcp;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import github.chorman0773.pokemonsms.net.INetController;
 import github.chorman0773.pokemonsms.net.INetHandlerRemote;
 import github.chorman0773.pokemonsms.net.PacketDecoder;
-import github.chorman0773.pokemonsms.net.client.NetHandlerClient;
+import github.chorman0773.pokemonsms.net.service.IBaseProtocol;
 
 public class PkmComOverTCP implements IBaseProtocol {
 
@@ -63,7 +63,7 @@ public class PkmComOverTCP implements IBaseProtocol {
 	public INetHandlerRemote openRemote(PacketDecoder dec,String addr, int port) throws IOException {
 		Socket s = new Socket();
 		s.connect(new InetSocketAddress(addr,port));
-		return new NetHandlerClient(dec,s);
+		return new TCPNetHandlerClient(dec,s);
 	}
 
 	@Override

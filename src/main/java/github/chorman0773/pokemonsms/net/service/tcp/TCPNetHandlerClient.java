@@ -1,4 +1,4 @@
-package github.chorman0773.pokemonsms.net.client;
+package github.chorman0773.pokemonsms.net.service.tcp;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -12,7 +12,7 @@ import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 import github.chorman0773.pokemonsms.net.connection.Connection;
 
-public class NetHandlerClient implements INetHandlerRemote {
+public class TCPNetHandlerClient implements INetHandlerRemote {
 	
 	private Connection conn;
 	
@@ -27,7 +27,7 @@ public class NetHandlerClient implements INetHandlerRemote {
 		}
 	}
 	
-	public NetHandlerClient(PacketDecoder dec, Socket sock) {
+	public TCPNetHandlerClient(PacketDecoder dec, Socket sock) {
 		conn = new Connection(dec,sock,generator.genKeyPair());
 	}
 

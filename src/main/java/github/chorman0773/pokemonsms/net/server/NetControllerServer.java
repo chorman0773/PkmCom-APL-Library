@@ -2,71 +2,71 @@ package github.chorman0773.pokemonsms.net.server;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.security.KeyPair;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import github.chorman0773.pokemonsms.net.NetworkSide;
-import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.INetController;
 import github.chorman0773.pokemonsms.net.INetHandlerRemote;
-import github.chorman0773.pokemonsms.net.ProtocolError;
+import github.chorman0773.pokemonsms.net.NetworkSide;
+import github.chorman0773.pokemonsms.net.PacketDecoder;
+import github.chorman0773.pokemonsms.net.service.Service;
 
 public class NetControllerServer implements INetController {
 	
-	private Set<INetHandlerServer> connections = new HashSet<>();
-	private ServerSocket sock;
-	private AtomicBoolean open = new AtomicBoolean();
-	private Object lock = new Object();
-	private KeyPair serverKeyPair;
-	private Thread incomingThread;
-	private Deque<INetHandlerServer> handleConnections = new LinkedList<>();
+	private List<INetHandlerServer> remotes;
 	
-	private void handleIncoming() {
-		while(open.get()) {
+	private Deque<INetHandlerServer> acceptWaiting;
+	protected final Object waitingLock = new Object();
+	private IOException waitingException;
+	protected volatile boolean open;
+	
+	
+
+	private Set<String> supportedModes;
+	protected final Map<Service,INetController> services;
+	
+	private void waitForConnectionsOn(INetController controller) {
+		while(open) {
 			try {
-				Socket s = sock.accept();
-				NetHandlerServer handler = new NetHandlerServer(dec,s,serverKeyPair,this);
-				synchronized(lock) {
-					connections.add(handler);
-					handleConnections.add(handler);
-					lock.notify();
+				INetHandlerServer server = controller.accept();
+				synchronized(waitingLock) {
+					acceptWaiting.add(server);
+					waitingLock.notify();
 				}
-			}
-			catch(IOException e) {
-				synchronized(lock) {
+				remotes.add(server);
+			}catch(IOException e) {
+				synchronized(waitingLock) {
 					waitingException = e;
-					lock.notify();
+					waitingLock.notify();
 				}
 			}
 		}
 	}
 	
-	private PacketDecoder dec;
-	
-	public NetControllerServer(PacketDecoder dec,SocketAddress addr,KeyPair pair) throws IOException {
-		sock = new ServerSocket();
-		sock.bind(addr);
-		sock.setSoTimeout(1000);
-		open.set(true);
-		this.serverKeyPair = pair;
-		incomingThread = new Thread(this::handleIncoming);
-		incomingThread.start();
-		this.dec = dec;
+	private void waitForConnections() {
+		services.values().parallelStream().forEach(this::waitForConnectionsOn);
 	}
-
+	
+	public NetControllerServer(PacketDecoder dec,Set<Service> services,Set<String> modes) throws IOException {
+		this.services = new HashMap<>();
+		services.forEach(s->this.services.computeIfAbsent(s, v->v.getBaseProtocol().createController(dec)));
+		this.supportedModes = Collections.unmodifiableSet(modes);
+		new Thread(this::waitForConnections) {
+			public synchronized void start() {
+				this.setDaemon(true);
+				super.start();
+			}
+		}.start();
+		this.remotes = Collections.synchronizedList(new ArrayList<>());
+	}
+	
+	
 	@Override
 	public NetworkSide getActive() {
 		// TODO Auto-generated method stub
@@ -75,57 +75,46 @@ public class NetControllerServer implements INetController {
 
 	@Override
 	public void close() throws IOException {
-		if(!open.get())
-			return;
-		open.set(false);
-		try {
-			incomingThread.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		synchronized(waitingLock) {
+			open = false;
+			for(INetController c:services.values())
+				c.close();
+			waitingLock.notifyAll();
+			this.remotes.clear();
 		}
-		for(INetHandlerServer conn:connections)
-			conn.close();
-		
-
-		sock.close();
 	}
 
 	@Override
 	public Stream<? extends INetHandlerRemote> getRemotes() {
 		// TODO Auto-generated method stub
-		return connections.stream();
+		return remotes.parallelStream();
 	}
 
 	@Override
 	public List<? extends INetHandlerRemote> listRemotes() {
 		// TODO Auto-generated method stub
-		return new ArrayList<>(connections);
-	}
-
-	public void closeConnection(NetHandlerServer netHandlerServer) throws ProtocolError {
-		synchronized(lock) {
-			connections.remove(netHandlerServer);
-		}
-		netHandlerServer.close();
+		return Collections.unmodifiableList(remotes);
 	}
 	
-	private IOException waitingException;
+	public Set<String> getModes(){
+		return supportedModes;
+	}
+
 
 	@Override
 	public INetHandlerServer accept() throws IOException {
 		try {
-			synchronized(lock) {
-				if(!open.getAcquire())
+			synchronized(waitingLock) {
+				if(!open)
 					throw new IOException("Connection Closed");
 				if(waitingException!=null) {
 					IOException threw = waitingException;
 					waitingException = null;
 					throw threw;
 				}
-				while(handleConnections.isEmpty()) {
-					lock.wait();
-					if(!open.getAcquire())
+				while(acceptWaiting.isEmpty()) {
+					waitingLock.wait();
+					if(!open)
 						throw new IOException("Connection Closed while waiting");
 					if(waitingException!=null) {
 						IOException threw = waitingException;
@@ -133,7 +122,7 @@ public class NetControllerServer implements INetController {
 						throw threw;
 					}
 				}
-				return handleConnections.pop();
+				return acceptWaiting.pop();
 			}
 		}catch(InterruptedException e) {
 			throw new InterruptedIOException();

@@ -12,6 +12,8 @@ import github.chorman0773.pokemonsms.net.PacketBuffer;
 import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.ProtocolError;
 import github.chorman0773.pokemonsms.net.Sizes;
+import github.chorman0773.pokemonsms.net.service.tcp.PkmComOverTCP;
+import github.chorman0773.pokemonsms.net.service.web.PkmComOverWebSocket;
 import github.lightningcreations.lclib.Hash;
 import github.lightningcreations.lclib.LexicographicalCompare;
 
@@ -21,9 +23,18 @@ public class Service implements Comparable<Service> {
 	
 	private static final LexicographicalCompare<Service> comparator = LexicographicalCompare.lexicographicalCompare(MethodHandles.lookup(),Service.class,"baseProtocolName","address","port");
 	
-	public void registerBaseProtocol(IBaseProtocol protocol) {
+	static {
+		registerCoreBaseProtocols();
+	}
+	
+	public static void registerBaseProtocol(IBaseProtocol protocol) {
 		if(baseProtocols.putIfAbsent(protocol.getProtocolName(), protocol)!=null)
 			throw new IllegalArgumentException("Registering Duplicate Base Protocol");
+	}
+	
+	private static void registerCoreBaseProtocols() {
+		registerBaseProtocol(new PkmComOverTCP());
+		registerBaseProtocol(new PkmComOverWebSocket());
 	}
 	
 	private IBaseProtocol protocol;

@@ -28,4 +28,4 @@ SOFTWARE.
 
 ## Additional Licenses
 
-This Library packages binary forms of Google Json, and the type tools libraries for linkage purposes. Licenses for these Binary Forms are included in /libs. I do not claim ownership of these libraries. 
+This Library packages binary forms of Google Json, the type tools, and Java-WebSocket libraries for linkage purposes. Licenses for these Binary Forms are included in /libs. I do not claim ownership of these libraries. 
