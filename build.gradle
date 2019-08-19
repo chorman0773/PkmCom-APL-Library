@@ -17,6 +17,8 @@ group = "github.lightningcreations"
 archivesBaseName = 'pkmcom-apl'
 version = "1.0"
 
+sourceCompatibility = targetCompatibility = 11
+
 repositories {
 	mavenLocal()
 	mavenCentral()
@@ -30,4 +32,13 @@ dependencies {
 	compile project(":LCLib-Java")
 	compile 'com.google.code.gson:gson:2.8.5'
 	compile group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.4.0'
+}
+
+
+jar{
+	manifest{
+		attributes(
+			'Automatic-Module-Name':"github.chorman0773.pokemonsms.net"
+		)
+	}
 }
