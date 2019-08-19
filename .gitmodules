@@ -1,0 +1,3 @@
+[submodule "LCLib-Java"]
+	path = LCLib-Java
+	url = https://github.com/LightningCreations/LCLib-Java.git
