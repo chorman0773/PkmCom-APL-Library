@@ -98,7 +98,7 @@ public abstract class NetControllerService implements INetController {
 	public INetHandlerServer accept() throws IOException {
 		try {
 			synchronized(lock) {
-				if(!open.getAcquire())
+				if(!open.get())
 					throw new IOException("Connection Closed");
 				if(waitingException!=null) {
 					IOException threw = waitingException;
@@ -107,7 +107,7 @@ public abstract class NetControllerService implements INetController {
 				}
 				while(handleConnections.isEmpty()) {
 					lock.wait();
-					if(!open.getAcquire())
+					if(!open.get())
 						throw new IOException("Connection Closed while waiting");
 					if(waitingException!=null) {
 						IOException threw = waitingException;

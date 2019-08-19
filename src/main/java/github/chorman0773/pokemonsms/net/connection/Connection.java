@@ -17,6 +17,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -31,7 +32,6 @@ import github.chorman0773.pokemonsms.net.HandshakeComplete;
 import github.chorman0773.pokemonsms.net.IPacket;
 import github.chorman0773.pokemonsms.net.PacketDecoder;
 import github.chorman0773.pokemonsms.net.ProtocolError;
-import github.lightningcreations.lclib.security.SecurityUtils;
 
 public class Connection implements AutoCloseable {
 	private PublicKey spub;
@@ -119,19 +119,19 @@ public class Connection implements AutoCloseable {
 			decryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			encryptCipher.init(Cipher.ENCRYPT_MODE, secret, spec);
 			decryptCipher.init(Cipher.DECRYPT_MODE, secret, spec);
-			SecurityUtils.destroy(message);
-			SecurityUtils.destroy(smessage);
-			SecurityUtils.destroy(cmessage);
-			SecurityUtils.destroy(civ);
-			SecurityUtils.destroy(siv);
-			SecurityUtils.destroy(iv);
+			Arrays.fill(message, (byte)0);
+			Arrays.fill(smessage, (byte)0);
+			Arrays.fill(smessage, (byte)0);
+			Arrays.fill(civ, (byte)0);
+			Arrays.fill(siv, (byte)0);
+			Arrays.fill(iv, (byte)0);
 			this.in = new DataInputStream(new CipherInputStream(sock.getInputStream(),encryptCipher));
 			this.out = new DataOutputStream(new CipherOutputStream(sock.getOutputStream(),decryptCipher));
 			dec.write(this.out, new HandshakeComplete());
 			IPacket packet = dec.read(this.in);
 			if(!(packet instanceof HandshakeComplete))
 				throw new ProtocolError("Could not complete Handshake (HandshakeComplete Packet Not on stream)");
-		} catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | DestroyFailedException e) {
+		} catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
 			throw new IOException(e);
 		}
 	}
